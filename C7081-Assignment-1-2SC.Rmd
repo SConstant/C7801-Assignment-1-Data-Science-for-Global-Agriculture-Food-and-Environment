@@ -1,0 +1,447 @@
+---
+title: 'Happiness, What proportion of the six factors surveyed attribute to a high
+  score?'
+author: "Sophie Constant"
+date: "28/11/2021"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub repository and Data
+
+Please see the link below for the github repository associated with this assignment.  <https://github.com/SConstant/C7801-Assignment-1-Data-Science-for-Global-Agriculture-Food-and-Environment>.
+
+Please see the link to the original dataset used for this assignment.
+<https://www.kaggle.com/unsdsn/world-happiness>
+
+## Background
+
+"The World Happiness Report is a landmark survey of the state of global happiness that ranks 156 countries by how happy their citizens perceive themselves to be." (Helliwell, J., Layard, R., & Sachs, J. 2019). 
+Its genesis emanates from the UN General assembly, where a meeting was held in 2011 chaired by the Secretary General at the time Ban ki Moon and the prime minister of Bhutan. The following year the first World Happiness Report was released as a function of the United Nations Sustainable development network. The purpose of this report is to analyse the progression of nations, and to pull out trends in seeing how happiness, the sense of well-being people globally experience (or not as the case may be) evolves over years. 
+The Happiness Score is derived as the survey measure of subjective well being from the Gallup world poll of 2019 and based on the Cantril ladder scale. The survey itself includes data from respondents across the years 2005 to 2018 and the majority of which is the aggregated response to the following question: “Please imagine a ladder, with steps numbered from 0 at the bottom to 10 at the top. The top of the ladder represents the best possible life for you and the bottom of the ladder represents the worst possible life for you. On which step of the ladder would you say you personally feel you stand at this time?” (Helliwell, J., Layard, R., & Sachs, J. 2019)
+There are six factors upon which data is collated and ranked and these are outlined below. 
+GDP per capita, is taken as Purchasing power parity. It is notable that some of the data included (from 2017-2018) were forecasts from the OECD Economic outlook, and the World Bank’s global Economic prospects. Healthy life expectancy is generated from data originating from the World health organisation, Global Health observatory data repository. Social support is an aggregate, the national average of binary responses to the Gallup world poll question: “if you were in trouble, do you have relatives or friends you can count on to help you whenever you need them of not? Freedom to make life choices is a similar aggregate of binary responses to the question: “Are you satisfied or dissatisfied with your freedom to choose what you do with your life?” (Helliwell, J., Layard, R., & Sachs, J. 2019) Generosity, is taken as the residual of regressing the national average of the Gallup World Poll responses to the survey question: “Have you donated money to a charity in the past month?” on GDP per capita. Lastly, much like Social support and freedom to make life choices, Perceptions of corruption are and aggregate of average of binary answers to two GWP questions: “Is corruption widespread throughout the government or not?” (Helliwell, J., Layard, R., & Sachs, J. 2019) and “Is corruption widespread within businesses or not?”. Where there’s no government corruption data available, business corruption has been used instead.  
+The objective of this report is to analyse the relationship between the overall Score as a dependant variable attributed to happiness and the values given for the 6 aforementioned quality of life factors as independent variables. While it is likely that the factors by nature of inclusion within the World Happiness Report will have some impact to the overall score, this report is concerned with the proportion at which these quality-of-life factors impact the overall score. Moreover which quality of life factors have the most influence or would be the better predictor of a high Happiness score. 
+This particular document is focussed on the report which was published in 2019, and as such the original source of the dataset found on Kaggle. 
+
+## Methods
+
+The dependent variable was identified as Score (or overall happiness), with the 6 factors surveyed, GDP per capita, Social Support, Healthy life expectancy, freedom to make life choices, generosity and perceptions of corruption. A note on the data, Score is taken from the Gallup World Poll of 2019, and in this analysis has been taken to be an aggregate of the responses received with the assumption of a transformation from a discrete to continuous scale so enabling confidence in the decisions around the chosen methods of analysis. 
+Following an initial Exploratory data analysis (EDA) on the distribution of the six factors, correlation testing was carried out. This to gain an insight and overview into potential relationships between Score and the 6 quality of life factors but also to venture the possibility of correlation relationships between independent variables themselves (see fig. 1). Four out of the six factors were found to be not Gaussian so proceeded with a Spearman's Rank correlation to ascertain any correlation relationship, and the strength of these between the six factors and the dependant variable Score. A smoothed line was chosen over a regression line due to an acceptance that not all the data points in all the variables were Gaussian.
+Further EDA was then carried out to assess the assumptions required for a multiple linear regression. It was found that the models for Social support, Freedom to make life choices and Perception of corruption violated the need for Gaussian residuals and homoscedasticity. There was an attempt to log transform these to persuade their residuals to conform to the assumptions but the heteroscedasticity appears worse with Social support and perception of corruption. For the purpose of carrying out a Multiple Linear regression the square of social support and polynomials to the order of 3 were added to the data frame as additional variables. The purpose of this was to offer a more expressive multiple linear regression model while still being able remain in this class of analysis. 
+A linear regression model was carried out to assess the expression of the squared variables where squared Social support displayed a low p-value attached indicating more expression. Following this an ANOVA of the comparison of the linear regression models of the squared and un-squared was then used to ascertain expressiveness. The same was conducted for the polynomial order of 3 (cubed) for the variable Freedom to make life choices. 
+Following this there was a process of model selection, in order to ascertain the model with the greatest performance in terms of expression and attribution of variance within Happiness score via the 6 quality of life factors. 
+Following this Model selection was carried out, to ascertain the most effective models in terms of which independent variables, had the most effect on the dependant variable Score. Firstly carrying out best subset selection identifying the model with the largest R squared, so identifying a model with a low training error with cross validation with Mallows’s Cp (Cp), Adjusted R2 and Bayesian information criterion (BIC) then being used to identify a model with a low test error. These models were plotted with a red dot identifying the model with the highest value for Adjusted R2  and the models with the lowest value for Cp and BIC to facilitate a visual approach to the analysis. 
+This was followed by Forwards and Backwards stepwise selection. Finally both a validation set approach and Cross validation were used to look at the test error in its own right thereby increasing confidence in the final selection of a model within this analysis.   
+  
+
+
+## Results
+
+For the correlation test Score seems very positively correlated with GDP per capita, Social support, and Healthy life expectancy with coefficients of 0.81, 0.82, and 0.81 respectively. Score also appears very correlated with freedom to make life choices with coefficient of 0.55. Score was weakly correlated with perceptions of corruption with a coefficient of 0.22. Generosity was not correlated with Score, and it is interesting to note that Generosity only correlated with Freedom to make life choices. 
+In terms of correlations between independent variables, GDP per capita, Social support and Life expectancy were all highly correlated. GDP was slightly correlated with perception of corruption with a coefficient of 0.22 with GDP, social support and life expectancy were all very correlated with freedom to make choices but not as much
+Perceptions of corruption were correlated with Generosity with a coefficient of 0.29 and freedom to make life choices with a coefficient of 0.40. 
+For the analysis of suitability for inclusion of the polynomials, from the linear regression the squared Social support has a low p-value attached, 0.00000000000000022 indicating significance thereby more expression in terms of letting us know what Social support means for the Score of Happiness. The ANOVA supported this with the squared model holding a significance of 0.00000342 leading to the acceptance of the hypothesis, the model containing both the squared and un-squared is more expressive, than un-squared alone.
+The observations from the Multiple Linear regression as follows. The un-transformed model for freedom to make life choices yields more significance than the cubed model. The heteroscedasticity in the residuals has the potential for ‘pushing’ greater significance than present due to a least squares regression assuming a constant variance, leading this to be less convincing. It cannot be ignored that social support squared experienced a high variance inflation factor.
+Including a quadratic approach that allows for the curves in the data found in social support, freedom to make Life Choices, with the quadratic and polynomials of the aforementioned variables added as new variables. Still however adopting a linear approach to multiple regression.
+The Multiple R squared is 0.80, so about 80% of the variation in the score can be explained by this model, so the 6 factors, presumably largely the significant factors. Looking at the F statistic 71 (greater than 1) in combination with an very small p-value 2.2e-16 for the overall model, and there is indication of a highly significant model where the slope for Score. The other 6 factors are approaching zero 
+The following convey significance at an alpha of 0.001. The p-value for the model for GDP per capita is 0.0037 indicating significance, The p-value for the model for Healthy life expectancy is 0.0015 indicating significance, he p-value for the model for squared social support is 0.0047 indicating significance. 
+The p-value for the model for perception of corruption is 0.012, conveying significance at an alpha of 0.05.
+Looking at the intercept, assuming all the factors were 0, the score would be (estimated) as 2.9
+It's interesting to see how the Squared social support (transformed due to the heteroscedasticity seen in the un-transformed variable) appears significant at only an alpha of 0.001 when accounting for the curve in its slope. 
+We can see that for GDP per capita, a change of 0.67 (0.67%) would affect the Score. For Healthy Life expectancy we can see that a change of 1.1 (1%) would affect the Score and for Social support, a change of 1.08 (1%) would affect the score of Happiness. 
+When plotting the residuals, these seemed reasonably even, with outliers being consistent at 152, 148 and 133 across the residuals v fitted. When looking at the Variance inflation factors (VIF) Social support has a VIF of 28 and Social support squared has a VIF of 30, and this seems very high indicating a high amount of multicollinearity.
+From observations gleaned from the multiple linear regression there is confidence in accepting the Hypothesis there is a relationship between the dependant variable (y) Score, and the independent variables (x) GDP per capita, Social support when squared, and Healthy life expectancy. There is a slightly significant relationship between the dependant variable y and perceptions of corruption.  
+In best subset selection Social support squared features in all the models, with Healthy life expectancy appearing next, and GDP per capita appearing third. The coefficients were examined for models 4, 5 and 6. The independent variables across model four expressed coefficients which were marginally less sensitive than models 5 and 6, however these two were also very similar is sensitivity leading to some doubt. 
+From the plotted models to cross validation statistics (Fig. 4.) it can be seen that model 4 is possibly performing similarly well to model 5. Generosity has very little effect from the perspective of Cp adjusted R squared and BIC. Freedom to make life choices to the order of 2 has very little effect from the perspective of adjusted R squared, Cp, and BIC.  Freedom to make life choices to the order of 1 also has little effect from the perspective of Cp. Model 5, has a BIC of 210, which is the highest, but does cross over with the adjusted R squared in terms of including the variables GDP per capita, Healthy life expectancy and Freedom to make life choices 1. The Cp is 8.7, which while isn't the lowest is a lot lower than other values along the same y axis 18, 45 and 98 and includes the variables GDP per capita, Healthy life expectancy, Social support squared and freedom to make life choices. 
+Model 6, in comparison, displays a lower BIC at 200 and includes generosity, whereas the Cp is higher at 10 and includes all the variables. The Adjusted R2 remains 78 losing social support, generosity, Perceptions of corruption and Freedom of life choices squared  and cubed. A this point Model 5 was looking promising, with model 4 also showing a promise which could not be ignored. 
+In the forwards stepwise selection the best one variable model starts with Social support squared The best two variable model has Social support squared, the three variable model has the above with Freedom to make life choices additionally. The four variable model then has GDP per capita additionally (interestingly one of the more significant in the Multiple linear regression) with the five variable model then included social support which was not originally significant. 
+It's interesting that Freedom to make life choices only shows up in the 3 variable model, as it shows up as fairly significant in the Multiple linear regression, though I'm inclined to attribute this to the heteroscedasticity the residuals exhibited inflating this. As such this variable may need to approach this variable with a non-linear regression. 
+ All the variables, showed that the coefficients were the same across forwards, and backwards selection with the only differences being seen in subset selection. 
+Finally, the validation set approach and Cross validation techniques yielded a set of minimum error values which when explored in R, led to a model with 4 variables being the one with the least error. Upon taking a visual approach and plotting this (Fig. 5.) aligns with this conveying a smoothed line from the 4 variable model onwards.  
+
+# Conclusions
+
+In conclusion, there were multiple quality of life factors to which variance and therefore influence to the Score of Happiness could be attributed. Notably in the multiple linear regression GDP per capita while significant was somewhat surprisingly not the greatest purveyor of attributable variance. There are some reservations about Social Support squared with its high variance inflation factor, and a concern about the polynomial to the order of 1 for Freedom to make life choices due to this variable exhibiting a high heteroscedasticity. It would be prudent to isolate this variable and carry out an analysis with a Non-linear regression technique such as Polynomial regression followed by a generalised Additive model. In terms of the coefficients, they were useful in observing the sensitivity of the independent variables to the dependant variable Score. However, by way of direct comparison they would benefit from some kind of scaling especially as this analysis included the use of polynomials, even though there would be a loss in absolute interpretability.   
+However in this analysis, the model which performed best contained four variables, and these alongside GDP per capita, Healthy life expectancy, Social support when squared and Freedom to make life choices. 
+
+
+```{r happy Set up}
+
+## HEADER ####
+## Who: Sophie Constant
+## https://dsgarage.netlify.app/
+## What: C7081 - Assignment 1 - What influences happiness?
+## Last edited: <DATE TODAY in 2021-12-09 format)
+
+## CONTENTS ####
+# 00 Setup
+# 01 Multiple Linear Regression 
+# 02 Model Selection
+
+# 00 Setup ####
+
+# Set your working directory setwd()
+
+setwd("C:/Users/Sophi/OneDrive/Documents/Data Science/Module 1/Assignment 1.2/")
+
+# Load the following packages using library () function
+
+library(openxlsx)
+library(dplyr)
+library(car)
+library(gclus)
+library(PerformanceAnalytics)
+library(psych)
+library(MASS)
+library(leaps)
+library(splines)
+library(wesanderson)
+
+happy_19 <- read.csv("2019.csv")
+
+summary(happy_19)
+
+# Scores, and independant variables from 2019
+
+happy_192 <- happy_19[3:9]
+
+summary(happy_192)
+
+# Creation of social support squared
+
+SS_X2 <- happy_192$Social.support^2
+
+summary(SS_X2)
+
+
+# Combining the transformed variables in a new data frame
+
+happy_192_sq_cu <- head(cbind(happy_192, Social.support.sq = SS_X2, Freedom.life.choices = (poly(happy_192$Freedom.to.make.life.choices, 3))), 156)
+
+# Removing the Freedom to make life choices variable causingthe multicollinearity flag
+
+happy_192_sq_cu_exFLC <- subset(happy_192_sq_cu, select = -c(Freedom.to.make.life.choices))
+
+
+# 01 Multiple Linear Regression  ####
+
+happy_192_lm_sq_cu_exFLC <- lm(Score ~ ., data = happy_192_sq_cu_exFLC)
+
+summary(happy_192_sq_cu_exFLC)
+
+# Variance inflation factors
+
+vif(happy_192_lm_sq_cu_exFLC)
+
+# Cor function to explore
+
+cor(happy_192_sq_cu_exFLC)
+
+
+# 02 Model Selection ####
+
+# Best subset selection
+
+happy192_sq_cu_exFLC_subset <- regsubsets(Score ~., 
+                           data = happy_192_sq_cu_exFLC)
+
+
+summary(happy192_sq_cu_exFLC_subset)
+
+# Adding some models using nvmax function
+
+happy192_sq_cu_exFLC_full <- regsubsets(Score ∼ ., data = happy_192_sq_cu_exFLC ,
+                           nvmax = 11)
+
+happy192_sq_cu_exFLC_reg_summary <- summary(happy192_sq_cu_exFLC_full)
+
+happy192_sq_cu_exFLC_reg_summary
+
+
+
+# Taking a look at what we can see
+
+names(happy192_sq_cu_exFLC_reg_summary)
+
+# Having a look at R squared statistic
+
+happy192_sq_cu_exFLC_reg_summary$rsq
+
+# Looking at the coefficients
+
+# Model 4
+
+coef(happy192_sq_cu_exFLC_full, 4)
+
+# Model 5
+
+coef(happy192_sq_cu_exFLC_full, 5)
+
+
+# Model 6
+
+coef(happy192_sq_cu_exFLC_full, 6)
+
+# Forwards stepwise selection
+
+happy_192_sq_cu_exFLC_regfit_fwd <- regsubsets (Score ∼ ., data = happy_192_sq_cu_exFLC ,
+                          nvmax = 11, method = "forward")
+
+summary (happy_192_sq_cu_exFLC_regfit_fwd)
+
+# Looking at the coefficients of model 4
+
+coef(happy_192_sq_cu_exFLC_regfit_fwd, 4)
+
+# Looking at the coefficients of model 5
+
+coef(happy_192_sq_cu_exFLC_regfit_fwd, 5)
+
+# Backwards Selection
+
+happy_192_sq_cu_exFLC_regfit_bwd <- regsubsets (Score ~ ., data = happy_192_sq_cu_exFLC ,
+                            nvmax = 11, method = "backward")
+
+summary (happy_192_sq_cu_exFLC_regfit_bwd)
+
+# Model 4
+
+coef(happy_192_sq_cu_exFLC_regfit_bwd, 4)
+
+# Model 5
+
+coef(happy_192_sq_cu_exFLC_regfit_bwd, 5)
+
+# All 
+
+coef(happy192_sq_cu_exFLC_full, 5)
+
+# A look at the coefficents of model 9 (previous models were looked at, but this has been removed for clarity and readability)
+
+coef(happy_192_sq_cu_exFLC_regfit_bwd, 9)
+coef(happy_192_sq_cu_exFLC_regfit_bwd, 9)
+coef(happy192_sq_cu_exFLC_full, 9)
+
+# Validation set approach
+
+# making a training set
+
+set.seed (1)
+
+train <- sample (c(TRUE , FALSE), nrow (happy_192_sq_cu_exFLC),
+                   replace = TRUE)
+test <- (!train)
+
+# Subset selection
+
+happy_subset <- regsubsets (Score ∼ .,
+                           data = happy_192_sq_cu_exFLC[train , ], nvmax = 9)
+
+summary(happy_subset)
+
+# model matrix from test data
+
+happy_test_mat <- model.matrix (Score ∼ ., data = happy_192_sq_cu_exFLC[test , ])
+ 
+# Validation  
+
+happy_val_errors = rep(NA,9)
+for (i in 1:9) {
+  coefi = coef(happy_subset, id = i)
+  pred = happy_test_mat[,names(coefi)] %*% coefi
+  happy_val_errors[i] = mean(((happy_192$Score[test]) - pred)^2)
+}
+
+# Taking a look 
+
+happy_val_errors
+
+# How many variables are in the best performing model? 
+
+which.min(happy_val_errors)
+
+# There are four variables in the best performing model
+
+coef(happy_subset, 4)
+
+# Writing a prediction method for regsubsets() (As it doesn't have one)
+
+predict.regsubsets <- function (object, newdata, id, ...) {
+  form <- as.formula (object$call[[2]])
+  mat <- model.matrix (form, newdata)
+  coefi <- coef (object, id = id)
+  xvars <- names (coefi)
+  mat[, xvars] %*% coefi
+}  
+
+# Best subset selection on the full dataset, and four variable model
+
+happy_regfit_best <- regsubsets(Score ∼ ., data = happy_192_sq_cu_exFLC,
+                           nvmax = 11)
+
+coef(happy_regfit_best, 4)
+
+# Cross-validation to choose a model in the group of different sized models
+
+# making folds and allocating observations
+
+k <- 10
+n <- nrow (happy_192_sq_cu_exFLC)
+set.seed(1)
+folds <- sample(rep (1:k, length = n))
+
+cv.errors <- matrix (NA, k, 11,
+                     dimnames = list (NULL , paste (1:11)))
+
+
+# Writing a loop to perform the cross validation
+
+
+for (j in 1:k) {
+  happy_best_fit <- regsubsets(Score ~ .,
+                         data = happy_192_sq_cu_exFLC[folds != j, ],
+                         nvmax = 9)
+  for (i in 1:9) {
+    pred <- predict(happy_best_fit, happy_192_sq_cu_exFLC[folds == j, ], id = i)
+    cv.errors[j, i] <-
+      mean((happy_192_sq_cu_exFLC$Score[folds == j] - pred)^2)
+  }
+}
+
+
+# Using apply to average over the columns to see a vector
+# where ith element is the crossvalidation error for the i-variable model
+
+mean.cv.errors <- apply (cv.errors , 2, mean)
+
+# taking a look
+
+mean.cv.errors
+
+
+
+
+```
+
+## Graphs and Figures
+
+
+Fig.1. Correlation Matrix of the dependant variable Score and independant variables
+
+```{r Happy correlation, echo=FALSE}
+
+pairs.panels(happy_192,
+             smooth = TRUE,      
+             scale = FALSE,      
+             density = TRUE,     
+             ellipses = FALSE,    
+             method = "spearman", 
+             pch = 21,           
+             lm = FALSE,         
+             cor = TRUE,         
+             jiggle = FALSE,     
+             hist.col = 5,       
+             stars = TRUE,       
+             ci = TRUE)              
+```
+
+
+Fig. 2. Four plots for RSS, Adjusted Rsq, Cp, and BIC. For Adjusted Rsq the red dot identifies the model with the highest value. For Cp and BIC, the red dot identifies the models with the lowest value
+
+```{r Best Subset selection all the stats, echo=FALSE}
+# Plotting RSS
+
+par(mfrow = c(2, 2))
+
+plot(happy192_sq_cu_exFLC_reg_summary$rss , xlab = " Number of Variables ",
+        ylab = " RSS ", type = "l")
+
+# plotting adjusted R squared 
+
+plot(happy192_sq_cu_exFLC_reg_summary$adjr2 , xlab = " Number of Variables ",
+        ylab = " Adjusted RSq ", type = "l")
+
+
+# Finding the maximum point
+
+which.max(happy192_sq_cu_exFLC_reg_summary$adjr2)
+
+# Adding a red dot to show the maximum point
+
+points(7, happy192_sq_cu_exFLC_reg_summary$adjr2[7], col = " red ", cex = 2,
+          pch = 20)
+
+# plotting Cp
+
+plot(happy192_sq_cu_exFLC_reg_summary$cp, xlab = " Number of Variables ",
+      ylab = "Cp", type = "l")
+
+# Finding the smallest static using which.min
+
+which.min(happy192_sq_cu_exFLC_reg_summary$cp)
+
+# Adding a red dot to show minimum point
+
+points(6, happy192_sq_cu_exFLC_reg_summary$cp[6], col = " red ", cex = 2,
+        pch = 20)
+
+# plotting BIC
+
+plot(happy192_sq_cu_exFLC_reg_summary$bic , xlab = " Number of Variables ",
+      ylab = " BIC ", type = "l")
+
+# Finding the smallest statistic
+
+which.min(happy192_sq_cu_exFLC_reg_summary$bic)
+
+points(4, happy192_sq_cu_exFLC_reg_summary$bic[4], col = " red ", cex = 2,
+        pch = 20)
+
+```
+
+
+Fig. 4. Four plots for RSS, Adjusted Rsq, Cp, and BIC, The models starting with the first being from the top of the y axis, with the values pertaining to the particular statistics on the y axis. The black and grey squares identifying the independant variables present in each model, with the white squares being an absence of the independant variable in the model from the perspective of that statistic represented in the plot.  
+
+```{r Best Subset selection all the stats black and white, echo=FALSE}
+
+par(mfrow = c(1.5, 2.5))
+
+plot(happy192_sq_cu_exFLC_full,scale = "r2")
+plot(happy192_sq_cu_exFLC_full,scale = "adjr2")
+plot(happy192_sq_cu_exFLC_full,scale = "Cp")
+plot(happy192_sq_cu_exFLC_full,scale = "bic")
+
+```
+
+
+Fig. 5. A plot of the four variable model following the validation set approach and cross validation
+
+```{r plot following validation and cross validation, echo=FALSE}
+
+par (mfrow = c(1, 1))
+
+plot (mean.cv.errors , type = "b")
+
+```
+
+# References 
+
+Ma, Y., Liu, A., Hu, X. and Shao, Y. (2020) Happiness Score Identification: a Regression Approach. EDP Sciences, . doi 10.1051/e3sconf/202021801051 
+
+Nakamura, J.S., Delaney, S.W., Diener, E., VanderWeele, T.J. and Kim, E.S. (2021a) 'Are all domains of life satisfaction equal? Differential associations with health and well-being in older adults', Quality of life research : an international journal of quality of life aspects of treatment, care and rehabilitation, . doi: 10.1007/s11136-021-02977-0 [doi].
+
+Network, U.S. (2019) 'World Happiness Report 2019', Retreived from: https://worldhappiness.report/ed, 2019, pp. 76.
+
+Gareth, J., Daniela, W., Trevor, H. and Robert, T., 2013. ‘3 Linear Regression’ An introduction to statistical learning: with applications in R. Spinger. pp 59-128
+
+Gareth, J., Daniela, W., Trevor, H. and Robert, T., 2013. ‘6 Linear Model Selection
+and Regularization’ An introduction to statistical learning: with applications in R. Spinger. pp 225-228
+
+Acevedo, M.F., 2012. ‘Chapter 6 Regression Data’ analysis and statistics for geography, environmental science, and engineering. Crc Press. Pp177-223
